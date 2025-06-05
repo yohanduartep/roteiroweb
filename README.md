@@ -32,20 +32,20 @@
     spring.application.name=LivrariaJPA
 
     # MARIADB
-    # spring.datasource.url=jdbc:mariadb://localhost:3306/livrariajpa
+    # spring.datasource.url=jdbc:mariadb://localhost:3306/livrariajpa?createDatabaseIfNotExist=true
     # spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
 
     # MYSQL
     # spring.datasource.url = jdbc:mysql://localhost:3306/livrariajpa?createDatabaseIfNotExist=true
     # spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
+    # POSTGRES
+    # spring.datasource.url=jdbc:postgresql://localhost:3306/livrariajpa?createDatabaseIfNotExist=true
+    # spring.datasource.driver-class-name=org.postgresql.Driver
+
     # DERBY
     # spring.datasource.url=jdbc:derby://localhost:3306/livrariajpa
     # spring.datasource.driver-class-name=org.apache.derby.jdbc.ClientDriver
-
-    # POSTGRES
-    # spring.datasource.url=jdbc:postgresql://localhost:3306/livrariajpa
-    # spring.datasource.driver-class-name=org.postgresql.Driver
 
     spring.datasource.username=root
     spring.datasource.password=root
