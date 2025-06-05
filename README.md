@@ -63,7 +63,6 @@
 package br.ufscar.dc.dsw.LivrariaJPA.models;
 
 import jakarta.persistence.*;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -146,7 +145,6 @@ package br.ufscar.dc.dsw.LivrariaJPA.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -201,7 +199,6 @@ package br.ufscar.dc.dsw.LivrariaJPA.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -256,7 +253,6 @@ package br.ufscar.dc.dsw.LivrariaJPA.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -314,7 +310,6 @@ import br.ufscar.dc.dsw.LivrariaJPA.models.BookModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -323,8 +318,6 @@ public interface BookRepository extends JpaRepository <BookModel, UUID> {
 
     @Query(value = "SELECT * FROM tb_book WHERE publisher_id=  :id", nativeQuery = true)
     List<BookModel> findBookModelByPublisherId(@Param("id") UUID id);
-
-
 }
 ```
 
@@ -335,7 +328,6 @@ package br.ufscar.dc.dsw.LivrariaJPA.repositories;
 
 import br.ufscar.dc.dsw.LivrariaJPA.models.PublisherModel;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.UUID;
 
 public interface PublisherRepository extends JpaRepository<PublisherModel, UUID> {
@@ -349,7 +341,6 @@ package br.ufscar.dc.dsw.LivrariaJPA.repositories;
 
 import br.ufscar.dc.dsw.LivrariaJPA.models.AuthorModel;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.UUID;
 
 public interface AuthorRepository extends JpaRepository<AuthorModel, UUID> {
@@ -397,7 +388,6 @@ import br.ufscar.dc.dsw.LivrariaJPA.repositories.BookRepository;
 import br.ufscar.dc.dsw.LivrariaJPA.repositories.PublisherRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -453,7 +443,6 @@ import br.ufscar.dc.dsw.LivrariaJPA.services.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.UUID;
 
