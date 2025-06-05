@@ -458,7 +458,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/bookstore/books")
+@RequestMapping("/livrariajpa/livros")
 public class BookController {
     private final BookService bookService;
     public BookController(BookService bookService) {
