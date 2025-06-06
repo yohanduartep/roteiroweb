@@ -60,7 +60,7 @@
 ##### BookModel.java
 
 ```java
-package br.ufscar.dc.dsw.LivrariaJPA.models;
+package br.ufscar.dc.dsw.models;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
@@ -141,7 +141,7 @@ public class BookModel implements Serializable {
 ##### PublisherModel.java
 
 ```java
-package br.ufscar.dc.dsw.LivrariaJPA.models;
+package br.ufscar.dc.dsw.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -195,7 +195,7 @@ public class PublisherModel implements Serializable {
 ##### AuthorModel.java
 
 ```java
-package br.ufscar.dc.dsw.LivrariaJPA.models;
+package br.ufscar.dc.dsw.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -249,7 +249,7 @@ public class AuthorModel implements Serializable {
 ##### ReviewModel.java
 
 ```java
-package br.ufscar.dc.dsw.LivrariaJPA.models;
+package br.ufscar.dc.dsw.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -304,9 +304,9 @@ public class ReviewModel implements Serializable {
 ##### BookRepository.java
 
 ```java
-package br.ufscar.dc.dsw.LivrariaJPA.repositories;
+package br.ufscar.dc.dsw.repositories;
 
-import br.ufscar.dc.dsw.LivrariaJPA.models.BookModel;
+import br.ufscar.dc.dsw.models.BookModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -324,9 +324,9 @@ public interface BookRepository extends JpaRepository <BookModel, UUID> {
 ##### PublisherRepository.java
 
 ```java
-package br.ufscar.dc.dsw.LivrariaJPA.repositories;
+package br.ufscar.dc.dsw.repositories;
 
-import br.ufscar.dc.dsw.LivrariaJPA.models.PublisherModel;
+import br.ufscar.dc.dsw.models.PublisherModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
@@ -337,9 +337,9 @@ public interface PublisherRepository extends JpaRepository<PublisherModel, UUID>
 ##### AuthorRepository.java
 
 ```java
-package br.ufscar.dc.dsw.LivrariaJPA.repositories;
+package br.ufscar.dc.dsw.repositories;
 
-import br.ufscar.dc.dsw.LivrariaJPA.models.AuthorModel;
+import br.ufscar.dc.dsw.models.AuthorModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
@@ -350,9 +350,9 @@ public interface AuthorRepository extends JpaRepository<AuthorModel, UUID> {
 ##### ReviewRepository.java
 
 ```java
-package br.ufscar.dc.dsw.LivrariaJPA.repositories;
+package br.ufscar.dc.dsw.repositories;
 
-import br.ufscar.dc.dsw.LivrariaJPA.models.ReviewModel;
+import br.ufscar.dc.dsw.models.ReviewModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
@@ -363,7 +363,7 @@ public interface ReviewRepository extends JpaRepository<ReviewModel, UUID> {
 #### 5. Criar package dtos e inserir a classe BookRecordDto.java
 
 ```java
-package br.ufscar.dc.dsw.LivrariaJPA.dtos;
+package br.ufscar.dc.dsw.dtos;
 
 import java.util.Set;
 import java.util.UUID;
@@ -378,14 +378,14 @@ public record BookRecordDto(String title,
 #### 6. Criar package services e inserir a classe BookService.java
 
 ```java
-package br.ufscar.dc.dsw.LivrariaJPA.services;
+package br.ufscar.dc.dsw.services;
 
-import br.ufscar.dc.dsw.LivrariaJPA.dtos.BookRecordDto;
-import br.ufscar.dc.dsw.LivrariaJPA.models.BookModel;
-import br.ufscar.dc.dsw.LivrariaJPA.models.ReviewModel;
-import br.ufscar.dc.dsw.LivrariaJPA.repositories.AuthorRepository;
-import br.ufscar.dc.dsw.LivrariaJPA.repositories.BookRepository;
-import br.ufscar.dc.dsw.LivrariaJPA.repositories.PublisherRepository;
+import br.ufscar.dc.dsw.dtos.BookRecordDto;
+import br.ufscar.dc.dsw.models.BookModel;
+import br.ufscar.dc.dsw.models.ReviewModel;
+import br.ufscar.dc.dsw.repositories.AuthorRepository;
+import br.ufscar.dc.dsw.repositories.BookRepository;
+import br.ufscar.dc.dsw.repositories.PublisherRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -435,11 +435,11 @@ public class BookService {
 #### 7. Criar package controllers e inserir a classe BookController.java
 
 ```java
-package br.ufscar.dc.dsw.LivrariaJPA.controllers;
+package br.ufscar.dc.dsw.controllers;
 
-import br.ufscar.dc.dsw.LivrariaJPA.dtos.BookRecordDto;
-import br.ufscar.dc.dsw.LivrariaJPA.models.BookModel;
-import br.ufscar.dc.dsw.LivrariaJPA.services.BookService;
+import br.ufscar.dc.dsw.dtos.BookRecordDto;
+import br.ufscar.dc.dsw.models.BookModel;
+import br.ufscar.dc.dsw.services.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
