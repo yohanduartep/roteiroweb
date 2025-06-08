@@ -162,8 +162,9 @@ public class PublisherModel implements Serializable {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "publisher", fetch = FetchType.LAZY)
+    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    //@OneToMany(mappedBy = "publisher", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "publisher")
     private Set<BookModel> books = new HashSet<>();
 
     public UUID getId() {
@@ -216,8 +217,9 @@ public class AuthorModel implements Serializable {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @ManyToMany(mappedBy = "authors", fetch = FetchType.LAZY)
+    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    //@ManyToMany(mappedBy = "authors", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "authors")
     private Set<BookModel> books = new HashSet<>();
 
     public UUID getId() {
@@ -268,7 +270,7 @@ public class ReviewModel implements Serializable {
     @Column(nullable = false)
     private String comment;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToOne
     @JoinColumn(name = "book_id")
     private BookModel book;
