@@ -1,3 +1,3 @@
 # Repositorio para disciplina de web
 
-## Siga o [roteiro](https://github.com/yohanduartep/roteiroweb/blob/main/JPA/RoteiroJPA.md) para realizar a implementação do projeto antes de implementar os métodos indicados na atividade [PC]().
+## Siga o [roteiro jpa](https://github.com/yohanduartep/roteiroweb/blob/main/JPA/RoteiroJPA.md) para realizar a implementação do projeto antes de prosseguir para o [roteiro REST API](https://github.com/yohanduartep/roteiroweb/blob/main/RESTAPI/RoteiroREST.md).
