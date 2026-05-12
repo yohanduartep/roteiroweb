@@ -1,5 +1,11 @@
 # Roteiro JPA
 
+Este roteiro mostra como persistir objetos Java em um banco de dados usando Spring Data JPA, sem escrever manualmente todo o SQL de CRUD.
+
+O exemplo será uma livraria com livros, autores, editoras e reviews.
+
+A API web será usada aqui apenas para testar o CRUD. O roteiro de REST API aprofunda os endpoints depois.
+
 #### 1. Criar um novo projeto Spring (https://start.spring.io/)
 
     Project: Maven Project
@@ -55,7 +61,18 @@
     spring.jpa.show-sql=true
     spring.jpa.open-in-view = true
 
-#### 3. Criar package models onde serão inseridas as classes:
+Essas configurações definem a conexão com o banco e o comportamento do Hibernate:
+
+- `spring.datasource.url`, `driver-class-name`, `username` e `password`: dados de conexão com o banco escolhido;
+- `spring.jpa.hibernate.ddl-auto=update`: permite que o Hibernate atualize o schema do banco conforme as entidades;
+- `spring.jpa.show-sql=true`: mostra no console os SQLs gerados pelo Hibernate;
+- `spring.jpa.open-in-view=true`: mantém a sessão JPA aberta durante a renderização da resposta web (`default = true`).
+
+#### 4. Criar package models onde serão inseridas as classes:
+
+As classes de `models` representam as tabelas. `@Entity` marca a classe como persistente e `@Table` define o nome da tabela.
+
+Serializable permite converter objetos em bytes, sendo usado em entidades JPA por compatibilidade com frameworks e cache.
 
 ##### LivroModel.java
 
@@ -300,7 +317,20 @@ public class ReviewModel implements Serializable {
 }
 ```
 
-#### 4. Criar package repositories onde serão inseridas as classes:
+Observações sobre os relacionamentos:
+
+- `LivroModel.publisher`: `@ManyToOne`; a chave estrangeira `publisher_id` fica em `TB_LIVRO`.
+- `PublisherModel.livros`: `@OneToMany(mappedBy = "publisher")`; lado inverso, não cria nova chave estrangeira.
+- `LivroModel.autores`: `@ManyToMany`; `@JoinTable` cria a tabela intermediária `tb_livro_autor`.
+- `AutorModel.livros`: `@ManyToMany(mappedBy = "autores")`; lado inverso do relacionamento.
+- `ReviewModel.livro`: `@OneToOne` com `@JoinColumn(name = "livro_id")`; a chave estrangeira fica em `TB_REVIEW`.
+- `LivroModel.review`: `@OneToOne(mappedBy = "livro")`; lado inverso do relacionamento.
+- Defaults: Por padrão, @ManyToOne e @OneToOne usam EAGER, enquanto @OneToMany e @ManyToMany usam LAZY.
+
+#### 5. Criar package repositories onde serão inseridas as classes:
+
+Os repositórios centralizam acesso ao banco. Ao estender `JpaRepository`, a interface já recebe métodos prontos, como `save`, `findById`, `findAll`, `deleteById`, `existsById` e `count`.
+Por isso, mesmo interfaces vazias como `AutorRepository` já conseguem executar operações básicas de CRUD.
 
 ##### LivroRepository.java
 
@@ -361,7 +391,9 @@ public interface ReviewRepository extends JpaRepository<ReviewModel, UUID> {
 }
 ```
 
-#### 5. Criar package dtos e inserir a classe LivroRecordDto.java
+#### 6. Criar package dtos e inserir a classe LivroRecordDto.java
+
+O DTO representa dados recebidos pela API e será usado para criar o `LivroModel`.
 
 ```java
 package br.ufscar.dc.dsw.dtos;
@@ -371,12 +403,14 @@ import java.util.UUID;
 
 public record LivroRecordDto(String titulo,
                             UUID publisherId,
-                            Set<UUID> autorIds,
+                            Set<UUID> autoresIds,
                             String reviewComentario) {
 }
 ```
 
-#### 6. Criar package services e inserir a classe LivroService.java
+#### 7. Criar package services e inserir a classe LivroService.java
+
+O serviço busca editora/autores, cria o review e salva o livro.
 
 ```java
 package br.ufscar.dc.dsw.services;
@@ -415,12 +449,30 @@ public class LivroService {
         LivroModel livro = new LivroModel();
         livro.setTitulo(livroRecordDto.titulo());
         livro.setPublisher(publisherRepository.findById(livroRecordDto.publisherId()).get());
-        livro.setAutores(autorRepository.findAllById(livroRecordDto.autorIds()).stream().collect(Collectors.toSet()));
+        livro.setAutores(autorRepository.findAllById(livroRecordDto.autoresIds()).stream().collect(Collectors.toSet()));
 
         ReviewModel reviewModel = new ReviewModel();
         reviewModel.setComentario(livroRecordDto.reviewComentario());
         reviewModel.setLivro(livro);
         livro.setReview(reviewModel);
+
+        return livroRepository.save(livro);
+    }
+
+    @Transactional
+    public LivroModel updateLivro(UUID id, LivroRecordDto livroRecordDto) {
+        LivroModel livro = livroRepository.findById(id).get();
+        livro.setTitulo(livroRecordDto.titulo());
+        livro.setPublisher(publisherRepository.findById(livroRecordDto.publisherId()).get());
+        livro.setAutores(autorRepository.findAllById(livroRecordDto.autoresIds()).stream().collect(Collectors.toSet()));
+
+        ReviewModel review = livro.getReview();
+        if (review == null) {
+            review = new ReviewModel();
+            review.setLivro(livro);
+            livro.setReview(review);
+        }
+        review.setComentario(livroRecordDto.reviewComentario());
 
         return livroRepository.save(livro);
     }
@@ -433,7 +485,17 @@ public class LivroService {
 }
 ```
 
-#### 7. Criar package controllers e inserir a classe LivroController.java
+Neste trecho:
+
+```java
+autorRepository.findAllById(livroRecordDto.autoresIds()).stream().collect(Collectors.toSet())
+```
+
+`findAllById` retorna os autores encontrados. O `stream()` percorre essa coleção e `collect(Collectors.toSet())` converte o resultado para `Set<AutorModel>`, o tipo usado em `LivroModel.autores`.
+
+#### 8. Criar package controllers e inserir a classe LivroController.java
+
+O controller expõe os endpoints HTTP usados para testar a persistência. O uso com Postman fica para o roteiro de REST API.
 
 ```java
 package br.ufscar.dc.dsw.controllers;
@@ -465,6 +527,11 @@ public class LivroController {
         return ResponseEntity.status(HttpStatus.CREATED).body(livroService.saveLivro(livroRecordDto));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<LivroModel> updateLivro(@PathVariable UUID id, @RequestBody LivroRecordDto livroRecordDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(livroService.updateLivro(id, livroRecordDto));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteLivro(@PathVariable UUID id) {
         livroService.deleteLivro(id);
@@ -473,12 +540,12 @@ public class LivroController {
 }
 ```
 
-#### 8. Inserir uns valores no banco de dados
+#### 9. Inserir alguns valores no banco de dados
 
 ```
 insert into tb_autor values(UUID(), 'Autor 1');
 insert into tb_autor values(UUID(), 'Autor 2');
 insert into tb_publisher values(UUID(), 'Publisher A');
 insert into tb_publisher values(UUID(), 'Publisher B');
-//caso usando mysql ou postegres, substitua UUID() por gen_random_uuid()
+//caso esteja usando PostgreSQL, substitua UUID() por gen_random_uuid()
 ```
