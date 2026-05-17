@@ -12,7 +12,7 @@ A API web será usada aqui apenas para testar o CRUD. O roteiro de REST API apro
 
     Language: Java
 
-    Spring Boot: 3.4.6
+    Spring Boot: 4.0.6
 
     Group: br.ufscar.dc.dsw
 
@@ -22,7 +22,7 @@ A API web será usada aqui apenas para testar o CRUD. O roteiro de REST API apro
 
     Description: LivrariaJPA
 
-    Package name: br.ufscar.dc.dsw
+    Package name: br.ufscar.dc.dsw.LivrariaJPA
 
     Packaging: Jar
 
@@ -65,6 +65,7 @@ Essas configurações definem a conexão com o banco e o comportamento do Hibern
 
 - `spring.datasource.url`, `driver-class-name`, `username` e `password`: dados de conexão com o banco escolhido;
 - `spring.jpa.hibernate.ddl-auto=update`: permite que o Hibernate atualize o schema do banco conforme as entidades;
+- `spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true`: evita flooding de erros relacionados a criação de objetos em alguns bancos;
 - `spring.jpa.show-sql=true`: mostra no console os SQLs gerados pelo Hibernate;
 - `spring.jpa.open-in-view=true`: mantém a sessão JPA aberta durante a renderização da resposta web (`default = true`).
 
@@ -77,7 +78,7 @@ Serializable permite converter objetos em bytes, sendo usado em entidades JPA po
 ##### LivroModel.java
 
 ```java
-package br.ufscar.dc.dsw.models;
+package br.ufscar.dc.dsw.LivrariaJPA.models;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
@@ -157,7 +158,7 @@ public class LivroModel implements Serializable {
 ##### PublisherModel.java
 
 ```java
-package br.ufscar.dc.dsw.models;
+package br.ufscar.dc.dsw.LivrariaJPA.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -178,8 +179,7 @@ public class PublisherModel implements Serializable {
     @Column(nullable = false, unique = true)
     private String nome;
 
-    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    //@OneToMany(mappedBy = "publisher", fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToMany(mappedBy = "publisher")
     private Set<LivroModel> livros = new HashSet<>();
 
@@ -212,7 +212,7 @@ public class PublisherModel implements Serializable {
 ##### AutorModel.java
 
 ```java
-package br.ufscar.dc.dsw.models;
+package br.ufscar.dc.dsw.LivrariaJPA.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -233,8 +233,7 @@ public class AutorModel implements Serializable {
     @Column(nullable = false, unique = true)
     private String nome;
 
-    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    //@ManyToMany(mappedBy = "autores", fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToMany(mappedBy = "autores")
     private Set<LivroModel> livros = new HashSet<>();
 
@@ -267,7 +266,7 @@ public class AutorModel implements Serializable {
 ##### ReviewModel.java
 
 ```java
-package br.ufscar.dc.dsw.models;
+package br.ufscar.dc.dsw.LivrariaJPA.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
@@ -286,7 +285,7 @@ public class ReviewModel implements Serializable {
     @Column(nullable = false)
     private String comentario;
 
-    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToOne
     @JoinColumn(name = "livro_id")
     private LivroModel livro;
@@ -335,9 +334,9 @@ Por isso, mesmo interfaces vazias como `AutorRepository` já conseguem executar 
 ##### LivroRepository.java
 
 ```java
-package br.ufscar.dc.dsw.repositories;
+package br.ufscar.dc.dsw.LivrariaJPA.repositories;
 
-import br.ufscar.dc.dsw.models.LivroModel;
+import br.ufscar.dc.dsw.LivrariaJPA.models.LivroModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -355,9 +354,9 @@ public interface LivroRepository extends JpaRepository <LivroModel, UUID> {
 ##### PublisherRepository.java
 
 ```java
-package br.ufscar.dc.dsw.repositories;
+package br.ufscar.dc.dsw.LivrariaJPA.repositories;
 
-import br.ufscar.dc.dsw.models.PublisherModel;
+import br.ufscar.dc.dsw.LivrariaJPA.models.PublisherModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
@@ -368,9 +367,9 @@ public interface PublisherRepository extends JpaRepository<PublisherModel, UUID>
 ##### AutorRepository.java
 
 ```java
-package br.ufscar.dc.dsw.repositories;
+package br.ufscar.dc.dsw.LivrariaJPA.repositories;
 
-import br.ufscar.dc.dsw.models.AutorModel;
+import br.ufscar.dc.dsw.LivrariaJPA.models.AutorModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
@@ -381,9 +380,9 @@ public interface AutorRepository extends JpaRepository<AutorModel, UUID> {
 ##### ReviewRepository.java
 
 ```java
-package br.ufscar.dc.dsw.repositories;
+package br.ufscar.dc.dsw.LivrariaJPA.repositories;
 
-import br.ufscar.dc.dsw.models.ReviewModel;
+import br.ufscar.dc.dsw.LivrariaJPA.models.ReviewModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
@@ -396,7 +395,7 @@ public interface ReviewRepository extends JpaRepository<ReviewModel, UUID> {
 O DTO representa dados recebidos pela API e será usado para criar o `LivroModel`.
 
 ```java
-package br.ufscar.dc.dsw.dtos;
+package br.ufscar.dc.dsw.LivrariaJPA.dtos;
 
 import java.util.Set;
 import java.util.UUID;
@@ -413,14 +412,14 @@ public record LivroRecordDto(String titulo,
 O serviço busca editora/autores, cria o review e salva o livro.
 
 ```java
-package br.ufscar.dc.dsw.services;
+package br.ufscar.dc.dsw.LivrariaJPA.services;
 
-import br.ufscar.dc.dsw.dtos.LivroRecordDto;
-import br.ufscar.dc.dsw.models.LivroModel;
-import br.ufscar.dc.dsw.models.ReviewModel;
-import br.ufscar.dc.dsw.repositories.AutorRepository;
-import br.ufscar.dc.dsw.repositories.LivroRepository;
-import br.ufscar.dc.dsw.repositories.PublisherRepository;
+import br.ufscar.dc.dsw.LivrariaJPA.dtos.LivroRecordDto;
+import br.ufscar.dc.dsw.LivrariaJPA.models.LivroModel;
+import br.ufscar.dc.dsw.LivrariaJPA.models.ReviewModel;
+import br.ufscar.dc.dsw.LivrariaJPA.repositories.AutorRepository;
+import br.ufscar.dc.dsw.LivrariaJPA.repositories.LivroRepository;
+import br.ufscar.dc.dsw.LivrariaJPA.repositories.PublisherRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -430,9 +429,9 @@ import java.util.stream.Collectors;
 @Service
 public class LivroService {
 
-     private final LivroRepository livroRepository;
-     private final AutorRepository autorRepository;
-     private final PublisherRepository publisherRepository;
+    private final LivroRepository livroRepository;
+    private final AutorRepository autorRepository;
+    private final PublisherRepository publisherRepository;
 
     public LivroService(LivroRepository livroRepository, AutorRepository autorRepository, PublisherRepository publisherRepository) {
         this.livroRepository = livroRepository;
@@ -498,11 +497,11 @@ autorRepository.findAllById(livroRecordDto.autoresIds()).stream().collect(Collec
 O controller expõe os endpoints HTTP usados para testar a persistência. O uso com Postman fica para o roteiro de REST API.
 
 ```java
-package br.ufscar.dc.dsw.controllers;
+package br.ufscar.dc.dsw.LivrariaJPA.controllers;
 
-import br.ufscar.dc.dsw.dtos.LivroRecordDto;
-import br.ufscar.dc.dsw.models.LivroModel;
-import br.ufscar.dc.dsw.services.LivroService;
+import br.ufscar.dc.dsw.LivrariaJPA.dtos.LivroRecordDto;
+import br.ufscar.dc.dsw.LivrariaJPA.models.LivroModel;
+import br.ufscar.dc.dsw.LivrariaJPA.services.LivroService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
