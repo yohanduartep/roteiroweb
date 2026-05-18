@@ -99,7 +99,7 @@ public class LivroModel implements Serializable {
     @Column(nullable = false, unique = true)
     private String titulo;
 
-    @ManyToMany
+    @ManyToMany // default fetch = FetchType.LAZY
     @JoinTable(
             name = "tb_livro_autor",
             joinColumns = @JoinColumn(name = "livro_id"),
@@ -107,11 +107,11 @@ public class LivroModel implements Serializable {
     )
     private Set<AutorModel> autores = new HashSet<>();
 
-    @ManyToOne
+    @ManyToOne // default fetch = FetchType.EAGER
     @JoinColumn(name = "publisher_id")
     private PublisherModel publisher;
 
-    @OneToOne(mappedBy = "livro", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "livro", cascade = CascadeType.ALL) // default fetch = FetchType.EAGER
     private ReviewModel review;
 
     public UUID getId() {
@@ -181,7 +181,7 @@ public class PublisherModel implements Serializable {
     private String nome;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToMany(mappedBy = "publisher")
+    @OneToMany(mappedBy = "publisher") // default fetch = FetchType.LAZY
     private Set<LivroModel> livros = new HashSet<>();
 
     public UUID getId() {
@@ -235,7 +235,7 @@ public class AutorModel implements Serializable {
     private String nome;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @ManyToMany(mappedBy = "autores")
+    @ManyToMany(mappedBy = "autores") // default fetch = FetchType.LAZY
     private Set<LivroModel> livros = new HashSet<>();
 
     public UUID getId() {
@@ -287,7 +287,7 @@ public class ReviewModel implements Serializable {
     private String comentario;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToOne
+    @OneToOne // default fetch = FetchType.EAGER
     @JoinColumn(name = "livro_id")
     private LivroModel livro;
 
