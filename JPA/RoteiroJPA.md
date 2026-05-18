@@ -46,7 +46,7 @@ A API web será usada aqui apenas para testar o CRUD. O roteiro de REST API apro
     # spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
     # POSTGRES
-    # spring.datasource.url=jdbc:postgresql://localhost:3306/livrariajpa?createDatabaseIfNotExist=true
+    # spring.datasource.url=jdbc:postgresql://localhost:5432/livrariajpa
     # spring.datasource.driver-class-name=org.postgresql.Driver
 
     # DERBY
@@ -56,7 +56,8 @@ A API web será usada aqui apenas para testar o CRUD. O roteiro de REST API apro
     spring.datasource.username=root
     spring.datasource.password=root
 
-    spring.jpa.hibernate.ddl-auto=update
+    #spring.jpa.hibernate.ddl-auto=update
+    spring.jpa.hibernate.ddl-auto=create-drop
     spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
     spring.jpa.show-sql=true
     spring.jpa.open-in-view = true
@@ -539,12 +540,82 @@ public class LivroController {
 }
 ```
 
-#### 9. Inserir alguns valores no banco de dados
+#### 9. Inserir alguns valores no banco de dados editando a classe LivrariaJpaApplication.java
 
-```
-insert into tb_autor values(UUID(), 'Autor 1');
-insert into tb_autor values(UUID(), 'Autor 2');
-insert into tb_publisher values(UUID(), 'Publisher A');
-insert into tb_publisher values(UUID(), 'Publisher B');
-//caso esteja usando PostgreSQL, substitua UUID() por gen_random_uuid()
+```java
+package br.ufscar.dc.dsw.LivrariaJPA;
+
+import br.ufscar.dc.dsw.LivrariaJPA.models.AutorModel;
+import br.ufscar.dc.dsw.LivrariaJPA.models.LivroModel;
+import br.ufscar.dc.dsw.LivrariaJPA.models.PublisherModel;
+import br.ufscar.dc.dsw.LivrariaJPA.models.ReviewModel;
+import br.ufscar.dc.dsw.LivrariaJPA.repositories.AutorRepository;
+import br.ufscar.dc.dsw.LivrariaJPA.repositories.LivroRepository;
+import br.ufscar.dc.dsw.LivrariaJPA.repositories.PublisherRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import java.util.Set;
+
+@SpringBootApplication
+public class LivrariaJpaApplication {
+
+	private static final Logger logger = LoggerFactory.getLogger(LivrariaJpaApplication.class);
+
+	public static void main(String[] args) {
+		var context = SpringApplication.run(LivrariaJpaApplication.class, args);
+
+		var livroRepository = context.getBean(LivroRepository.class);
+		var autorRepository = context.getBean(AutorRepository.class);
+		var publisherRepository = context.getBean(PublisherRepository.class);
+
+		if (livroRepository.count() == 0) {
+			var autor1 = new AutorModel();
+			autor1.setNome("Autor 1");
+			autorRepository.save(autor1);
+
+			var autor2 = new AutorModel();
+			autor2.setNome("Autor 2");
+			autorRepository.save(autor2);
+
+			var autor3 = new AutorModel();
+			autor3.setNome("Autor 3");
+			autorRepository.save(autor3);
+
+			var publisher1 = new PublisherModel();
+			publisher1.setNome("Publisher 1");
+			publisherRepository.save(publisher1);
+
+			var publisher2 = new PublisherModel();
+			publisher2.setNome("Publisher 2");
+			publisherRepository.save(publisher2);
+
+			var livro1 = new LivroModel();
+			livro1.setTitulo("Livro 1");
+			livro1.setPublisher(publisher1);
+			livro1.setAutores(Set.of(autor1));
+
+			var review1 = new ReviewModel();
+			review1.setComentario("Review 1");
+			review1.setLivro(livro1);
+			livro1.setReview(review1);
+			livroRepository.save(livro1);
+
+			var livro2 = new LivroModel();
+			livro2.setTitulo("Livro 2");
+			livro2.setPublisher(publisher2);
+			livro2.setAutores(Set.of(autor2));
+
+			var review2 = new ReviewModel();
+			review2.setComentario("Review 2");
+			review2.setLivro(livro2);
+			livro2.setReview(review2);
+			livroRepository.save(livro2);
+
+		}
+	}
+
+}
 ```
